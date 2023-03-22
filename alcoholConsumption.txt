@@ -1,0 +1,119 @@
+/*
+Project Title: Alcohol Consumption Analysis and Comparison Across Countries
+
+Objectives:
+
+    To identify the top countries with highest and lowest alcohol consumption based on total litres of pure alcohol.
+    To determine the relationship between beer, spirit and wine servings per region and the total litres of pure alcohol consumed.
+    To compare the alcohol consumption patterns across different regions.
+
+
+
+Data Collection:
+The data was obtained from the World Health Organisation, Global Information System on Alcohol and Health (GISAH) in 2010. 
+It contains the average serving sizes of beer, spirits and wine per person and the total litres of pure alcohol consumed for each country.
+*/
+#DROP TABLE alcohol_consumption;  
+CREATE TABLE alcohol_consumption 
+(
+     country VARCHAR(50),
+     beer_servings INTEGER,
+     spirit_servings INTEGER,
+     wine_servings INTEGER,
+     total_litres_of_pure_alcohol NUMERIC(4,1)
+);
+
+#Describe alcohol_consumption;
+
+#show TABLES;
+
+#https://github.com/fivethirtyeight/data/blob/master/alcohol-consumption/drinks.csv
+#ERROR reading from CSV file so inputed some manually
+INSERT INTO alcohol_consumption (country, beer_servings, spirit_servings, wine_servings, total_litres_of_pure_alcohol) 
+VALUES 
+('Afghanistan', 0, 0, 0, 0),
+('Albania', 89, 132, 54, 4.9),
+('Algeria', 25, 0, 14, 0.7),
+('Andorra', 245, 138, 312, 12.4),
+('Angola', 217, 57, 45, 5.9),
+('Antigua & Barbuda', 102, 128, 45, 4.9),
+('Argentina', 193, 25, 221, 8.3),
+('Armenia', 21, 179, 11, 3.8),
+('Australia', 261, 72, 212, 10.4),
+('Austria', 279, 75, 191, 9.7),
+('Azerbaijan', 21, 46, 5, 1.3),
+('Bahamas', 122, 176, 51, 6.3),
+('Bahrain', 42, 63, 7, 2),
+('Bangladesh', 0, 0, 0, 0),
+('Barbados', 143, 173, 36, 6.3),
+('Belarus', 142, 373, 42, 14.4),
+('Belgium', 295, 84, 212, 10.5),
+('Belize', 263, 114, 8, 6.8),
+('Benin', 34, 4, 13, 1.1),
+('Bhutan', 23, 0, 0, 0.4),
+('Bolivia', 167, 41, 8, 3.8),
+('Bosnia-Herzegovina', 76, 173, 8, 4.6),
+('Botswana', 173, 35, 35, 5.4),
+('Brazil', 245, 145, 16, 7.2),
+('Brunei', 31, 2, 1, 0.6),
+('Bulgaria', 231, 252, 94, 10.3),
+('Burkina Faso', 25, 7, 7, 4.3),
+('Burundi', 88, 0, 0, 6.3),
+('Cabo Verde', 144, 56, 16, 4),
+('Cambodia', 57, 65, 1, 2.2),
+('Cameroon', 147, 1, 4, 5.8),
+('Canada', 240, 122, 100, 8.2),
+('Central African Republic', 17, 2, 1, 1.8),
+('Chad', 15, 1, 1, 0.4),
+('Chile', 130, 124, 172, 7.6),
+('China', 79, 192, 8, 5),
+('Colombia', 159, 76, 3, 4.2);
+
+
+-- Identifying the top countries with highest and lowest alcohol consumption based on total litres of pure alcohol
+SELECT country, total_litres_of_pure_alcohol
+FROM alcohol_consumption
+ORDER BY total_litres_of_pure_alcohol DESC
+LIMIT 5;
+
+SELECT country, total_litres_of_pure_alcohol
+FROM alcohol_consumption
+WHERE total_litres_of_pure_alcohol > 0
+ORDER BY total_litres_of_pure_alcohol
+LIMIT 5;
+
+
+-- Comparing the alcohol consumption patterns across different regions
+SELECT
+CASE
+WHEN country IN ('United States', 'Canada', 'Mexico', 'Argentina', 'Brazil', 'Chile', 'Colombia', 'Peru') THEN 'Americas'
+WHEN country IN ('Australia', 'New Zealand', 'Fiji') THEN 'Oceania'
+WHEN country IN ('Algeria', 'Egypt', 'Ethiopia', 'Kenya', 'Nigeria', 'South Africa') THEN 'Africa'
+WHEN country IN ('China', 'India', 'Indonesia', 'Japan', 'Philippines', 'Russia') THEN 'Asia'
+ELSE 'Europe'
+END AS region,
+AVG(beer_servings) AS avg_beer_servings,
+AVG(spirit_servings) AS avg_spirit_servings,
+AVG(wine_servings) AS avg_wine_servings
+FROM alcohol_consumption
+GROUP BY region
+ORDER BY region;
+
+-- Comparing the distribution of total litres of pure alcohol consumed across different regions
+SELECT region, SUM(total_litres_of_pure_alcohol) AS total_litres_of_pure_alcohol
+FROM (
+    SELECT
+        CASE
+            WHEN country IN ('United States', 'Canada', 'Mexico', 'Argentina', 'Brazil', 'Chile', 'Colombia', 'Peru') THEN 'Americas'
+            WHEN country IN ('Australia', 'New Zealand', 'Fiji') THEN 'Oceania'
+            WHEN country IN ('Algeria', 'Egypt', 'Ethiopia', 'Kenya', 'Nigeria', 'South Africa') THEN 'Africa'
+            WHEN country IN ('China', 'India', 'Indonesia', 'Japan', 'Philippines', 'Russia') THEN 'Asia'
+            ELSE 'Europe'
+        END AS region,
+        total_litres_of_pure_alcohol
+    FROM alcohol_consumption
+    WHERE total_litres_of_pure_alcohol > 0
+) AS subquery
+GROUP BY region;
+
+#Select * FROM  alcohol_consumption;

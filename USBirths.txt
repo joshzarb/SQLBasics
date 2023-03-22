@@ -1,0 +1,91 @@
+/*
+    What is the average number of births per day of the week across all years?
+    Which day of the week has the highest number of births on average?
+    How does the number of births vary by month of the year?
+    Are there any months where the number of births is consistently higher or lower than average?
+    How do the trends in births differ between weekdays and weekends?
+*/
+DROP TABLE ssa_births;  
+DROP TABLE cdc_births; 
+CREATE TABLE ssa_births (
+  year INTEGER,
+  month INTEGER,
+  date_of_month INTEGER,
+  day_of_week INTEGER,
+  births INTEGER
+);
+
+CREATE TABLE cdc_births (
+  year INTEGER,
+  month INTEGER,
+  date_of_month INTEGER,
+  day_of_week INTEGER,
+  births INTEGER
+);
+
+#https://github.com/fivethirtyeight/data/blob/master/births/US_births_1994-2003_CDC_NCHS.csv
+LOAD DATA INFILE 'data-master\\births\\US_births_1994-2003_CDC_NCHS.csv'
+INTO TABLE cdc_births
+FIELDS TERMINATED BY ','
+IGNORE 1 ROWS;
+
+
+#https://github.com/fivethirtyeight/data/blob/master/births/US_births_2000-2014_SSA.csv
+LOAD DATA INFILE 'data-master\\births\\US_births_2000-2014_SSA.csv'
+INTO TABLE ssa_births
+FIELDS TERMINATED BY ','
+IGNORE 1 ROWS;
+
+
+-- Calculate the average number of births per day of the week across all years
+SELECT day_of_week, AVG(births) AS avg_births
+FROM ssa_births
+GROUP BY day_of_week
+ORDER BY day_of_week;
+
+-- Find the day of the week with the highest number of births on average
+SELECT day_of_week, AVG(births) AS avg_births
+FROM ssa_births
+GROUP BY day_of_week
+ORDER BY avg_births DESC
+LIMIT 1;
+
+-- Calculate the average number of births per month across all years
+SELECT month, AVG(births) AS avg_births
+FROM ssa_births
+GROUP BY month
+ORDER BY month;
+
+-- Identify any months where the number of births is consistently higher or lower than average
+SELECT month, AVG(births) AS avg_births
+FROM ssa_births
+GROUP BY month
+HAVING AVG(births) > (SELECT AVG(births) FROM ssa_births)
+ORDER BY month;
+
+-- Compare the trends in weekday births versus weekend births
+SELECT CASE WHEN day_of_week IN (1,7) THEN 'Weekend' ELSE 'Weekday' END AS day_type,
+month,
+AVG(births) AS avg_births
+FROM ssa_births
+GROUP BY day_type, month
+ORDER BY month, day_type;
+
+
+-- Count the number of births on Friday the 13th for each dataset
+SELECT 'CDC' AS dataset, COUNT(*) AS friday_13th_births
+FROM cdc_births
+WHERE day_of_week = 6 AND date_of_month = 13
+UNION ALL
+SELECT 'SSA' AS dataset, COUNT(*) AS friday_13th_births
+FROM ssa_births
+WHERE day_of_week = 6 AND date_of_month = 13;
+
+-- Count the number of births on all other days of the month for each dataset
+SELECT 'CDC' AS dataset, COUNT(*) AS non_friday_13th_births
+FROM cdc_births
+WHERE NOT (day_of_week = 6 AND date_of_month = 13)
+UNION ALL
+SELECT 'SSA' AS dataset, COUNT(*) AS non_friday_13th_births
+FROM ssa_births
+WHERE NOT (day_of_week = 6 AND date_of_month = 13);
