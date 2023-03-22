@@ -44,19 +44,19 @@ This project analyses alcohol consumption patterns across different countries us
     Determine the relationship between beer, spirit, and wine servings per region and the total litres of pure alcohol consumed.
     Compare the alcohol consumption patterns across different regions.
 
-** Data Collection **
+**Data Collection**
 
 The data used in this project was obtained from the World Health Organisation, Global Information System on Alcohol and Health (GISAH) in 2010. It contains the average serving sizes of beer, spirits, and wine per person and the total litres of pure alcohol consumed for each country.
 
-** Code Description **
+**Code Description**
 
 The code provided uses SQL to create a table, alcohol_consumption, and insert data into it. It then runs three SQL queries to achieve the objectives of the project. The first two queries identify the countries with the highest and lowest alcohol consumption based on total litres of pure alcohol. The third query compares the alcohol consumption patterns across different regions.
 
-** How to Use **
+**How to Use**
 
 To use this code, you will need access to a SQL database. Copy and paste the code into a SQL editor, and run the queries one by one. The output of the queries will be displayed in the SQL editor.
 
-** Dependencies **
+**Dependencies**
 
 This code requires a SQL database to run.
 
